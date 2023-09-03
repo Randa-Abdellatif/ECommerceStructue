@@ -15,6 +15,7 @@ const productSchema = new Schema({
     subcategoryId:{type:Types.ObjectId,ref:"SubCategory", required:true},
     brandId:{type:Types.ObjectId,ref:"Brand", required:true},
     avgRate:{type:Number, default:0},
+    rateNo:{type:Number, default:0},
     sold:{type:Number, default:0},
     QRCode:{type:String, required: true},
     createdby:{type:Types.ObjectId, ref:"User", required:true},

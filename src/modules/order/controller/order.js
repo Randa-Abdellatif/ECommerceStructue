@@ -2,8 +2,13 @@ import cartModel from "../../../../DB/model/Cart.model.js"
 import couponModel from "../../../../DB/model/Coupon.model.js"
 import orderModel from "../../../../DB/model/Order.model.js"
 import productModel from "../../../../DB/model/Product.model.js"
+import { createInvoice } from "../../../utils/createinvoice.js"
 import { ErrorClass } from "../../../utils/errorClass.js"
 import Stripe from 'stripe';
+import path from 'path'
+import { fileURLToPath } from 'url'
+import sendEmail, { createHtml } from "../../../utils/email.js"
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 const stripe = new Stripe(process.env.stripeKey);
 
@@ -78,7 +83,7 @@ export const createOrder = async (req, res, next) => {
         await cartModel.updateOne({userId: req.user._id},{products:[]})
     }
 
-    
+    const paymentPrice=(price - (price * ((req.body.coupon?.amount || 0) / 100)))
 
     const order = await orderModel.create({
         userId: req.user._id,
@@ -88,8 +93,33 @@ export const createOrder = async (req, res, next) => {
         status:paymentMethod == 'card' ? 'waitPayment':'placed',
         products:existedProducts,
         price,
-        paymentPrice:(price - (price * ((req.body.coupon?.amount || 0) / 100)))
+        paymentPrice
     })
+
+    const invoice = {
+        shipping: {
+          email: req.user.email,
+          paymentPrice,
+          name: req.user.name,
+          address,
+        },
+        items: existedProducts.map(ele =>{
+            return  {
+                item: ele.product.name,
+                quantity: ele.quantity,
+                amount: ele.product.paymentPrice
+            }
+        }),
+        price,
+      };
+      const pdfPath = path.join(__dirname,"../../../utils/pdf/invoice.pdf")
+      createInvoice(invoice, pdfPath);
+
+      sendEmail({to:req.user.email, subject:"order invoice", html:createHtml('YOUR ORDER'), attachments:[{
+        path:pdfPath,
+        name:'order invoice',
+        type:'application/pdf'
+      }]})
 
     if(req.body.coupon){
         await couponModel.updateOne({code:req.body.coupon.code},{
