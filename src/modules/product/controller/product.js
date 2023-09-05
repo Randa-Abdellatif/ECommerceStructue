@@ -2,7 +2,6 @@ import brandModel from "../../../../DB/model/Brand.model.js";
 import categoryModel from "../../../../DB/model/Category.model.js";
 import productModel from "../../../../DB/model/Product.model.js"
 import { StatusCodes } from "http-status-codes";
-import subcategoryModel from "../../../../DB/model/subCategory.model.js";
 import slugify from "slugify";
 import cloudinary from "../../../utils/cloudinary.js";
 import { ErrorClass } from "../../../utils/errorClass.js";
@@ -10,7 +9,7 @@ import { deleteOne } from "../../../utils/hendlers/delete.js";
 import QRCode from 'qrcode'
 import { pagination } from "../../../utils/pagination.js";
 import { ApiFeatures } from "../../../utils/apiFeatures.js";
-
+import subcategoryModel  from '../../../../DB/model/SubCategory.model.js'
 export const addProduct = async(req, res, next)=>{
     const isNameExist = await productModel.findOne({name:req.body.name})
     if(isNameExist){

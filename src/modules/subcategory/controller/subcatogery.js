@@ -1,10 +1,12 @@
 import slugify from "slugify"
 import categoryModel from "../../../../DB/model/Category.model.js"
-import subcategoryModel from "../../../../DB/model/subCategory.model.js"
+import subcategoryModel from "../../../../DB/model/SubCategory.model.js"
 import cloudinary from "../../../utils/cloudinary.js"
 import {
 	ReasonPhrases,
 	StatusCodes,
+
+
 	getReasonPhrase,
 	getStatusCode,
 } from 'http-status-codes';
